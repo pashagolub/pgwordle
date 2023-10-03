@@ -1,0 +1,21 @@
+\set d_step_is_game off
+
+
+\echo Type your guess and press <Enter>:
+\prompt guess
+
+/* \echo select distance = 0 as is_winner, distance, coalesce(tip, $$<NULL>$$) as tip from :distfunc(:'word', :'guess') d(distance, tip) \gset */
+\set QUIET on
+select distance = 0 as is_winner, distance, coalesce(tip, '<NULL>') as tip from :distfunc(:'word', :'guess') d(distance, tip) \gset
+insert into moves (guess, distance, tip) values (:'guess', :'distance', :'tip');
+\set QUIET off
+\echo
+select * from moves order by id;
+
+\if :is_winner
+  \echo 'YES! YOU ARE THE WINNER!'
+  \prompt 'Press <Enter> to continue…' d_dummy
+  \ir ./start.psql
+\else
+  \ir ./game.psql
+\endif

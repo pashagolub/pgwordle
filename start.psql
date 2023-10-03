@@ -1,0 +1,8 @@
+\set QUIET on
+SET client_min_messages TO WARNING;
+create temp table if not exists moves(id serial, guess text, distance int4, tip text);
+\set wordset pg_keywords
+\set distfunc wordle_std
+\set QUIET off
+
+\ir ./menu.psql

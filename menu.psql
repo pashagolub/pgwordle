@@ -1,0 +1,36 @@
+\echo '\033[1;35mMenu:\033[0m'
+\echo '   w – Set the word set to use (default pg_keywords)'
+\echo '   f – Set distance function to use (default wordle_std)'
+\echo '   b – Begin the game!'
+\echo
+\echo Type your choice and press <Enter>:
+\prompt d_step_unq
+\set d_stp '\'' :d_step_unq '\''
+select
+:d_stp::text = 'w' as d_step_is_words,
+:d_stp::text = 'f' as d_step_is_func,
+:d_stp::text = 'b' as d_step_is_game \gset
+
+\if :d_step_is_words
+  \echo 'Enter the table with words for a game. Default:' :wordset
+  \prompt wordset
+  \echo
+  \ir ./menu.psql
+\elif :d_step_is_func
+  \echo 'Enter the distance function name for a game. Default: ' :distfunc
+  \prompt distfunc
+  \echo
+  \ir ./menu.psql
+\elif :d_step_is_game
+  \set QUIET on
+  drop table moves;
+  create temp table moves(id serial, guess text, distance int4, tip text);
+  select word from :wordset where char_length(word) = 5 order by random() limit 1 \gset
+  \set QUIET off
+  \ir ./game.psql
+\else
+  \echo
+  \echo '\033[1;31mError:\033[0m Unknown option! Try again.'
+  \echo
+  \ir ./menu.psql
+\endif
