@@ -1,0 +1,2 @@
+\echo Use ":wordle" to begin the game!
+\set wordle '\\i /pgwordle/start.psql'

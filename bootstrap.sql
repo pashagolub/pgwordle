@@ -1,14 +1,6 @@
 -- word sets. Make sure you have installed/downloaded proper *.dict files (see slides)
 CREATE TABLE pg_keywords AS select word from pg_get_keywords();
 
-CREATE TABLE en_us(word text);
-
-COPY en_us FROM PROGRAM
-'grep --only-matching --extended-regexp "^\b\w+\b" \
-`pg_config --sharedir`/tsearch_data/en_us.dict | sort -u'
-WITH (HEADER on);
-
-
 -- standard wordle distance function
 CREATE FUNCTION wordle_std(word TEXT, guess TEXT)
 RETURNS TABLE (distance integer, descriptin text)
