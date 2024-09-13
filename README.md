@@ -6,7 +6,7 @@ This is the repo with source code for my talk "Customizing the Wordle Game"
 
 ### Docker Compose
 * Clone the repo and cd into the folder
-* `docker compose up -d --force-recrete`
+* `docker compose up -d --force-recreate`
 * `docker compose exec postgres psql -U postgres`
 * Have fun!
 
