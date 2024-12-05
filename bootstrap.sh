@@ -21,6 +21,12 @@ psql --username "postgres" <<-EOSQL
     `pg_config --sharedir`/tsearch_data/nl.dict | sort -u'
     WITH (HEADER on);
 
+    CREATE TABLE it(word text);
+
+    COPY it FROM PROGRAM
+    'grep --only-matching --extended-regexp "^\b\w+\b" \
+    `pg_config --sharedir`/tsearch_data/it_it.dict | sort -u'
+    WITH (HEADER on);
 
     CREATE TABLE uk_ua(word text);
 

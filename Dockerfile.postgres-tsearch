@@ -1,8 +1,9 @@
-FROM postgres:17beta3
+FROM postgres:17
 
 # Install the necessary packages for plpython3u
 RUN apt-get update && apt-get install -y postgresql-common \
-    hunspell-en-us hunspell-fr hunspell-nl hunspell-uk
+    hunspell-en-us hunspell-fr hunspell-nl hunspell-uk \
+    hunspell-it
 
 # Clean up
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* 
