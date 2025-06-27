@@ -25,8 +25,9 @@ select
   \set QUIET on
   drop table moves;
   create temp table moves(id serial, guess text, distance int4, tip text);
-  select word from :wordset where char_length(word) = 5 order by random() limit 1 \gset
+  select lower(word) as word from :wordset where char_length(word) = 5 order by random() limit 1 \gset
   \set QUIET off
+  \! clear
   \ir ./game.psql
 \else
   \echo

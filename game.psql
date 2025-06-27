@@ -1,6 +1,5 @@
 \set d_step_is_game off
 
-
 \echo Type your guess and press <Enter>:
 \prompt guess
 
