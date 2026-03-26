@@ -1,15 +1,16 @@
 \echo '\033[1;35mMenu:\033[0m'
 \echo '   w – Set the word set to use (default pg_keywords)'
 \echo '   f – Set distance function to use (default wordle_std)'
-\echo '   b – Begin the game!'
+\echo '   b [word] – Begin the game! Optionally provide a secret word.'
 \echo
 \echo Type your choice and press <Enter>:
 \prompt d_step_unq
 \set d_stp '\'' :d_step_unq '\''
 select
-:d_stp::text = 'w' as d_step_is_words,
-:d_stp::text = 'f' as d_step_is_func,
-:d_stp::text = 'b' as d_step_is_game \gset
+left(:d_stp::text, 1) = 'w' as d_step_is_words,
+left(:d_stp::text, 1) = 'f' as d_step_is_func,
+left(:d_stp::text, 1) = 'b' as d_step_is_game,
+nullif(btrim(substr(:d_stp::text, 2)), '') as d_secret_word \gset
 
 \if :d_step_is_words
   \echo 'Enter the table with words for a game. Default:' :wordset
@@ -25,7 +26,11 @@ select
   \set QUIET on
   drop table moves;
   create temp table moves(id serial, guess text, distance int4, tip text);
-  select lower(word) as word from :wordset where char_length(word) = 5 order by random() limit 1 \gset
+  \if :{?d_secret_word}
+    select lower(:'d_secret_word') as word \gset
+  \else
+    select lower(word) as word from :wordset where char_length(word) = 5 order by random() limit 1 \gset
+  \endif
   \set QUIET off
   \! clear
   \ir ./game.psql
