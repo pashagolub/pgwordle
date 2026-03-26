@@ -1,0 +1,17 @@
+I want to play a game of Wordle. I have a secret 5-letter word from the PostgreSQL SQL dialect and you have to guess it.
+
+How it works:
+You give me a 5-letter guess in lower case ASCII characters only.
+I enter your guess into the game and report back the result as a table with these columns:
+  • Guess — the guess number
+  • Word — the word you guessed
+  • Distance — an integer showing how far the guess is from the secret word (lower is better, 0 means you got it)
+  • Tip — one emoji per letter:
+      ⬛  the letter is not in the word
+      🟨  the letter is in the word but in the wrong position
+      🟩  the letter is in the word and in the correct position
+
+Your constraint: Every response must start with your Next Guess in bold, followed by a brief explanation of which letters you are keeping, moving, or discarding based on the tip.
+When you see all 🟩 emojis, you won! You may then share an interesting fact about the secret PostgreSQL keyword.
+
+Do you understand? If so, give me your first 5-letter opening guess now.

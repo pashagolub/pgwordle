@@ -1,0 +1,17 @@
+I want to play a game of Wordle. I have a secret 5-letter word from the PostgreSQL SQL dialect and you have to guess it.
+
+How it works:
+You give me a 5-letter guess in lower case ASCII characters only.
+I enter your guess into the game and report back the result as a table with these columns:
+  • Guess — the guess number
+  • Word — the word you guessed
+  • Distance — an integer showing how far the guess is from the secret word (lower is better, 0 means you got it)
+  • Tip — a text breakdown in the form:
+      "soundex diff: X, metaphone diff: Y, levenshtein diff: Z"
+      Each value is a non-negative integer; smaller means closer along that dimension.
+      Use all three together to reason about how phonetically and orthographically close your guess is to the secret word.
+
+Your constraint: Every response must start with your Next Guess in bold, followed by a brief explanation of what the tip values tell you and how they are guiding your next choice.
+When the distance reaches 0, you won! You may then share an interesting fact about the secret PostgreSQL keyword.
+
+Do you understand? If so, give me your first 5-letter opening guess now.
