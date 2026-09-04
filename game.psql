@@ -7,9 +7,17 @@
 \set QUIET on
 select distance = 0 as is_winner, distance, coalesce(tip, '<NULL>') as tip from :distfunc(:'word', :'guess') d(distance, tip) \gset
 insert into moves (guess, distance, tip) values (:'guess', :'distance', :'tip');
+-- built and printed via \echo (not a plain SELECT) because psql's aligned
+-- table renderer sanitizes control bytes, which would turn our ANSI tiles
+-- into literal "\x1B[...m" text instead of colors
+select string_agg(
+  format('%3s │ %-' || char_length(:'word') || 's │ %3s │ %s', id, guess, distance, tip),
+  chr(10) order by id
+) as board from moves \gset
 \set QUIET off
 \echo
-select * from moves order by id;
+\echo ' id │ guess │ dst │ tip'
+\echo :board
 
 \if :is_winner
   \echo 'YES! YOU ARE THE WINNER!'

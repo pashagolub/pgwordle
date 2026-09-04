@@ -4,10 +4,10 @@ CREATE TABLE pg_keywords AS select word from pg_get_keywords();
 -- standard wordle distance function
 CREATE FUNCTION wordle_std(word TEXT, guess TEXT)
 RETURNS TABLE (distance integer, descriptin text)
-AS 
+AS
 $$
-WITH chars AS (SELECT 
-string_to_table(guess, null) AS g, 
+WITH chars AS (SELECT
+string_to_table(guess, null) AS g,
 string_to_table(word, NULL) AS w
 )
 SELECT 2*char_length(word) - sum(CASE
@@ -16,9 +16,10 @@ SELECT 2*char_length(word) - sum(CASE
     	ELSE 0
 END),
  string_agg(CASE
-    WHEN g=w THEN '🟩'
-    WHEN strpos(word, g) > 0 THEN '🟨'
-    ELSE '⬛'
+    -- Wordle-style tiles: bold letter on a colored background (green/yellow/grey)
+    WHEN g=w THEN chr(27) || '[1;37;42m ' || upper(g) || ' ' || chr(27) || '[0m'
+    WHEN strpos(word, g) > 0 THEN chr(27) || '[1;30;43m ' || upper(g) || ' ' || chr(27) || '[0m'
+    ELSE chr(27) || '[1;37;100m ' || upper(g) || ' ' || chr(27) || '[0m'
 END, null)
 FROM chars
 $$
