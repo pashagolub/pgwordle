@@ -2,6 +2,7 @@
 
 \echo Type your guess and press <Enter>:
 \prompt guess
+\! clear
 
 /* \echo select distance = 0 as is_winner, distance, coalesce(tip, $$<NULL>$$) as tip from :distfunc(:'word', :'guess') d(distance, tip) \gset */
 \set QUIET on
