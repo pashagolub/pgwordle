@@ -1,6 +1,10 @@
 \set d_step_is_game off
+\set max_guesses 6
 
-\echo Type your guess and press <Enter>:
+\set QUIET on
+select count(*) + 1 as attempt_num from moves \gset
+\set QUIET off
+\echo Guess :attempt_num of :max_guesses '— type your guess and press <Enter>:'
 \prompt guess
 \! clear
 
@@ -14,14 +18,61 @@ insert into moves (guess, distance, tip) values (:'guess', :'distance', :'tip');
 select string_agg(
   format('%3s │ %-' || char_length(:'word') || 's │ %3s │ %s', id, guess, distance, tip),
   chr(10) order by id
-) as board from moves \gset
+) as board, count(*) >= :max_guesses as out_of_guesses from moves \gset
+
+-- keyboard hint: best known status per letter (correct > present > absent)
+-- across all guesses so far, laid out as three staggered qwerty rows
+with per_letter as (
+  select
+    lower(substr(m.guess, gs.pos, 1)) as letter,
+    case
+      when lower(substr(m.guess, gs.pos, 1)) = lower(substr(:'word', gs.pos, 1)) then 2
+      when position(lower(substr(m.guess, gs.pos, 1)) in lower(:'word')) > 0 then 1
+      else 0
+    end as status
+  from moves m, generate_series(1, char_length(m.guess)) as gs(pos)
+),
+best as (
+  select letter, max(status) as status from per_letter group by letter
+),
+kb(letter, row_no, ord) as (
+  values
+    ('q',1,1),('w',1,2),('e',1,3),('r',1,4),('t',1,5),('y',1,6),('u',1,7),('i',1,8),('o',1,9),('p',1,10),
+    ('a',2,1),('s',2,2),('d',2,3),('f',2,4),('g',2,5),('h',2,6),('j',2,7),('k',2,8),('l',2,9),
+    ('z',3,1),('x',3,2),('c',3,3),('v',3,4),('b',3,5),('n',3,6),('m',3,7)
+),
+tile(row_no, ord, tile) as (
+  select k.row_no, k.ord,
+    case coalesce(b.status, -1)
+      when 2 then chr(27) || '[1;37;42m ' || upper(k.letter) || ' ' || chr(27) || '[0m'
+      when 1 then chr(27) || '[1;30;43m ' || upper(k.letter) || ' ' || chr(27) || '[0m'
+      when 0 then chr(27) || '[1;37;100m ' || upper(k.letter) || ' ' || chr(27) || '[0m'
+      else chr(27) || '[2m ' || upper(k.letter) || ' ' || chr(27) || '[0m'
+    end
+  from kb k left join best b on b.letter = k.letter
+)
+select
+  string_agg(tile, '' order by ord) filter (where row_no = 1) as kb1,
+  string_agg(tile, '' order by ord) filter (where row_no = 2) as kb2,
+  string_agg(tile, '' order by ord) filter (where row_no = 3) as kb3
+from tile \gset
 \set QUIET off
 \echo
 \echo ' id │ guess │ dst │ tip'
 \echo :board
+\echo
+\echo ' ' :kb1
+\echo '  ' :kb2
+\echo '   ' :kb3
 
 \if :is_winner
+  \echo
   \echo 'YES! YOU ARE THE WINNER!'
+  \prompt 'Press <Enter> to continue…' d_dummy
+  \ir ./start.psql
+\elif :out_of_guesses
+  \echo
+  \echo 'Out of guesses! The word was:' :word
   \prompt 'Press <Enter> to continue…' d_dummy
   \ir ./start.psql
 \else
